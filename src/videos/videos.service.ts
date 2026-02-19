@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateVideoDto } from './dto/createVideo.dto';
 import { VideoEntity } from './interface/videos.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 @Injectable()
 export class VideosService {
   constructor(
@@ -24,5 +23,20 @@ export class VideosService {
     });
 
     return videoNovo;
+  }
+
+  async deleteVideo(id: string): Promise<void> {
+    try {
+      await this.videoRepository.delete(id);
+    } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const code: string = String(error.code);
+
+      if (code === '22P02') {
+        throw new NotAcceptableException('Tipo de id não identificado');
+      }
+
+      throw new NotAcceptableException('Erro não identificado');
+    }
   }
 }
