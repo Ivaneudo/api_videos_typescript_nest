@@ -21,4 +21,9 @@ export class VideosController {
   async deleteVideo(@Param('id') id: string): Promise<void> {
     await this.videosService.deleteVideo(id);
   }
+
+  @Get(':title')
+  async getTitleVideos(@Param('title') title: string): Promise<VideoEntity[]> {
+    return await this.videosService.getTitleVideos(title);
+  }
 }

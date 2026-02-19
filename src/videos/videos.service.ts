@@ -1,9 +1,13 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateVideoDto } from './dto/createVideo.dto';
 import { VideoEntity } from './interface/videos.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 @Injectable()
 export class VideosService {
   constructor(
@@ -38,5 +42,19 @@ export class VideosService {
 
       throw new NotAcceptableException('Erro não identificado');
     }
+  }
+
+  async getTitleVideos(search: string): Promise<VideoEntity[]> {
+    const result = await this.videoRepository.find({
+      where: [{ title: ILike(`%${search}%`) }],
+    });
+
+    if (result.length === 0) {
+      throw new NotFoundException(
+        `Nenhum video com o titulo: '${search}' foi encontrado.`,
+      );
+    }
+
+    return result;
   }
 }
